@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "297872690067",
+    "firebase_url": "https://pilgrimage-3757b.firebaseio.com",
+    "project_id": "pilgrimage-3757b",
+    "storage_bucket": "pilgrimage-3757b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297872690067:android:13c06ec9c3a143e71af666",
+        "android_client_info": {
+          "package_name": "com.android.pilgrimage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297872690067-kcr9h99l374aemfjqqd9sobfkre8giap.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android.pilgrimage",
+            "certificate_hash": "a1d15d47d19bb5bdaf26165e3b96538fd84dc1ca"
+          }
+        },
+        {
+          "client_id": "297872690067-c521bscig0ufvtbl0ff666vjs45536c5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzspf5XCVLneGZWAkf3S64Rhcwe3y_nHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297872690067-c521bscig0ufvtbl0ff666vjs45536c5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
