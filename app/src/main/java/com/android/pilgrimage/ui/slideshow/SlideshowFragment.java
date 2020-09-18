@@ -3,7 +3,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,7 +19,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.pilgrimage.LikeAdapter;
+import com.android.pilgrimage.PostAdapter;
+import com.android.pilgrimage.Posts;
 import com.android.pilgrimage.R;
+import com.android.pilgrimage.UploadAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.datatransport.runtime.time.TimeModule;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -43,15 +51,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.ACTIVITY_SERVICE;
 
 public class SlideshowFragment extends Fragment {
 
 
     private  View mMainView;
     private Button upload;
-    private FirebaseUser mCurrentUser;
+    private FirebaseUser mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference mImageStorage;
-    private DatabaseReference mUserDatabase;
+    private DatabaseReference mAllPostDatabase = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference mPostDatabase = FirebaseDatabase.getInstance().getReference();
+    public static final int CODE = 1;
+    String download_url;
+    private DatabaseReference mUserPostDatabase;
+    private RecyclerView mUserPostList;
+    private UploadAdapter adapter;
+    private FirebaseAuth mAuth= FirebaseAuth.getInstance();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -59,15 +75,34 @@ public class SlideshowFragment extends Fragment {
 
         mMainView = inflater.inflate(R.layout.fragment_slideshow, container, false);
 
+        mUserPostList = mMainView.findViewById(R.id.my_post_recycler);
+        mUserPostList.setLayoutManager(new LinearLayoutManager(mMainView.getContext()));
+
+        String mCurrUser = mAuth.getUid();
+
+        mUserPostDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(mCurrUser).child("userPosts");
+
+        FirebaseRecyclerOptions<Posts> options = new FirebaseRecyclerOptions.Builder<Posts>()
+                .setQuery(mUserPostDatabase, Posts.class)
+                .build();
+
+        adapter = new UploadAdapter(options);
+        mUserPostList.setAdapter(adapter);
         upload = mMainView.findViewById(R.id.upload_btn);
 
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CropImage.activity()
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(1, 1)
-                        .start(getActivity());
+                try {
+                    Intent galleryIntent = new Intent();
+                    galleryIntent.setType("image/jpeg");
+                    galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(galleryIntent, "Select Image"),CODE);
+                }
+                catch (Exception e){
+                    Toast.makeText(getActivity(),"Button Error", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
@@ -75,84 +110,69 @@ public class SlideshowFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        //String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        mImageStorage = FirebaseStorage.getInstance().getReference();
-        mUserDatabase = FirebaseDatabase.getInstance().getReference();
-
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-
-                final Uri resultUri = result.getUri();
-
-                final StorageReference filepath = mImageStorage.child("posts");
 
 
-                Uri file = resultUri;
-                StorageReference riversRef = filepath.child("images/rivers.jpg");
+        if(requestCode==CODE && resultCode== RESULT_OK) {
 
-                riversRef.putFile(file)
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                // Get a URL to the uploaded content
-                                //Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                                Toast.makeText(getContext(), "Image Upload Success", Toast.LENGTH_LONG).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                // Handle unsuccessful uploads
-                                Toast.makeText(getContext(), "Image Upload Error", Toast.LENGTH_LONG).show();
-                            }
-                        });
-            }
+            Uri resultUri = data.getData();
+            final String imgUri = data.getDataString();
 
+            //Toast.makeText(getContext(), "1", Toast.LENGTH_LONG).show();
 
+            mImageStorage=FirebaseStorage.getInstance().getReference();
 
-              /*  filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
+            final StorageReference filepath = mImageStorage.child("post").child(imgUri);
 
+            filepath.putFile(resultUri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            // Get a URL to the uploaded content
                             filepath.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
+                                    download_url = task.getResult().toString();
+                                    final String user_id = mCurrentUser.getUid();
 
-                                    final String download_url = task.getResult().toString();
-//
-
-                                    Map update_hashmap = new HashMap();
-                                    update_hashmap.put("image", download_url);
-
-                                    mUserDatabase.updateChildren(update_hashmap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-
-                                            if (task.isSuccessful()) {
-                                                Toast.makeText(getContext(), "Done Upload", Toast.LENGTH_LONG).show();
-                                            } else {
-                                                Toast.makeText(getContext(), "Thumbnail Upload Error", Toast.LENGTH_LONG).show();
-                                            }
-                                        }
-                                    });
+                                    HashMap<String , String > Map = new HashMap<>();
+                                    Map.put("user", user_id);
+                                    Map.put("link", download_url);
+                                    mPostDatabase.child("Users").child(user_id).child("userPosts").push().child("link").setValue(download_url);
+                                    mAllPostDatabase.child("images").child("category").child("all").push().setValue(Map);
                                 }
                             });
                         }
-                    }
-                });
-            }else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Toast.makeText(getContext(), "Image Upload Error", Toast.LENGTH_LONG).show();
-            }
-            else
-                Toast.makeText(getContext(), "Image Upload Error", Toast.LENGTH_LONG).show();
-        }*/
+
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            // Handle unsuccessful uploads
+                            Toast.makeText(getContext(), "Image Upload Error", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+        }
+//            CropImage.activity(imageUri)
+//                    .setGuidelines(CropImageView.Guidelines.ON)
+//                    .setAspectRatio(1, 1)
+//                    .start(getActivity());
+//        }
         }
 
-    }
 }
 

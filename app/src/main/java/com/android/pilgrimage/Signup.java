@@ -123,6 +123,7 @@ public class Signup extends AppCompatActivity {
                             userMap.put("phoneNumber", mPhoneNumber);
                             userMap.put("name", mUsername);
                             userMap.put("pass",mPassword);
+                            userMap.put("postCount", "0");
                             //userMap.put("status", "Hi there! I'm using ChatApp.");
                             //userMap.put("image", "default");
                             //userMap.put("thumb_image", "default");

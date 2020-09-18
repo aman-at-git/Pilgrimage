@@ -10,11 +10,10 @@
         android:id="@+id/upload_btn"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="188dp"
+        android:layout_marginBottom="30dp"
         android:background="@drawable/btn_bg"
         android:padding="10dp"
-        android:text="UPLOAD"
+        android:text="UPLOAD PILGRIMAGE"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="20sp"
@@ -25,44 +24,15 @@
         app:layout_constraintTop_toBottomOf="@+id/button3"
         app:layout_constraintVertical_bias="0.0" />
 
-    <TextView
-        android:id="@+id/already_have_acc_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="(Feature is still under dev.)"
-        android:textColor="@color/colorPrimary"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="Upload Your Own Image"
-        android:textColor="@color/colorPrimary"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/imageView13"
-        android:layout_width="324dp"
-        android:layout_height="369dp"
-        android:src="@drawable/vectorstock_31924190"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/my_post_recycler"
+        android:layout_width="409dp"
+        android:layout_height="744dp"
+        android:layout_marginBottom="30dp"
         app:layout_constraintBottom_toTopOf="@+id/upload_btn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.598" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,9 +2,11 @@ package com.android.pilgrimage;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -14,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -69,7 +72,6 @@ public class NavBar extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        super.onOptionsItemSelected(item);
 
         if(item.getItemId()==R.id.logout){
             FirebaseAuth.getInstance().signOut();
@@ -78,7 +80,7 @@ public class NavBar extends AppCompatActivity {
 
         }
 
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

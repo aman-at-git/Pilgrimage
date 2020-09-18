@@ -5,6 +5,6 @@
         android:id="@+id/logout"
         android:icon="@color/colorPrimaryLight"
         android:orderInCategory="100"
-        android:title="LogOut"
+        android:title="Logout"
         app:showAsAction="never" />
 </menu>
